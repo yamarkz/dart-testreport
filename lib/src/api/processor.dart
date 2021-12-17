@@ -10,7 +10,7 @@ abstract class Processor {
   Processor._();
 
   /// Creates a Processor for the given [timestamp].
-  factory Processor({DateTime timestamp}) => StartProcessor(timestamp);
+  factory Processor({required DateTime timestamp}) => StartProcessor(timestamp);
 
   /// Processes a single [event](https://github.com/dart-lang/test/blob/master/pkgs/test/doc/json_reporter.md#events).
   ///

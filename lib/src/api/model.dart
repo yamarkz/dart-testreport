@@ -14,7 +14,7 @@ class Report {
   final DateTime timestamp;
 
   /// Create a report with the given [suites] and [timestamp].
-  Report(Iterable<Suite> suites, {this.timestamp})
+  Report(Iterable<Suite> suites, {required this.timestamp})
       : suites = List.unmodifiable(suites);
 }
 
@@ -73,13 +73,16 @@ class Test {
   final int duration;
 
   /// Indicates why was the test skipped.
-  final String skipReason;
+  final String? skipReason;
 
   /// [Problem]s occurred during the test.
   final Iterable<Problem> problems;
 
   /// Messages printed during the test.
   final Iterable<String> prints;
+
+  /// The URL for the file in which the test was defined, or `null`.
+  final String? url;
 
   /// Indicates that the test is hidden.
   ///
@@ -89,12 +92,17 @@ class Test {
   /// Creates a Test with the given [name], [duration], [skipReason],
   /// [problems], [prints] and [isHidden].
   Test(this.name, this.duration, this.skipReason, Iterable<Problem> problems,
-      Iterable<String> prints, this.isHidden)
+      this.url, Iterable<String> prints, this.isHidden)
       : problems = List.unmodifiable(problems),
         prints = List.unmodifiable(prints);
 
   /// Returns whether the test is skipped.
   bool get isSkipped => skipReason != null;
+
+  @override
+  String toString() {
+    return 'Test{name: $name, duration: $duration, skipReason: $skipReason, problems: $problems, prints: $prints, url: $url, isHidden: $isHidden}';
+  }
 }
 
 /// Describes a problem found during running the test.

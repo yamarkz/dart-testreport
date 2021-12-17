@@ -9,6 +9,7 @@ void main(List<String> args) async {
   var report = await createReport(file.lastModifiedSync(), lines);
 
   report.suites.forEach((s) {
+    s.allTests.forEach(print);
     s.problems.forEach((t) {
       t.problems.forEach((p) {
         print('${s.path} - ${t.name}: ${p.message}');

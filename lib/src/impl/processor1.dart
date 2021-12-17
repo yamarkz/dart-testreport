@@ -21,13 +21,11 @@ class Processor1 implements Processor {
     switch (type) {
       case 'testStart':
         var test = event['test'] as Map<String, dynamic>;
-        var testCase = _Test()
-          ..startTime = event['time'] as int
-          ..name = test['name'] as String
-          ..skipReason = test['metadata']['skipReason'] as String;
+        var testCase = _Test(test['name'] as String, event['time'] as int,
+            test['metadata']['skipReason'] as String?, test['url'] as String?);
 
         tests[test['id'] as int] = testCase;
-        suites[test['suiteID']].tests.add(testCase);
+        suites[test['suiteID']]?.tests.add(testCase);
         break;
 
       case 'testDone':
@@ -36,24 +34,23 @@ class Processor1 implements Processor {
         }
 
         tests[event['testID'] as int]
-          ..endTime = event['time'] as int
+          ?..endTime = event['time'] as int
           ..hidden = event['hidden'] as bool;
         break;
 
       case 'suite':
         var suite = event['suite'] as Map<String, dynamic>;
-        suites[suite['id'] as int] = _Suite()
-          ..path = suite['path'] as String
-          ..platform = suite['platform'] as String;
+        suites[suite['id'] as int] =
+            _Suite(suite['path'] as String, suite['platform'] as String);
         break;
 
       case 'error':
-        tests[event['testID']].problems.add(Problem(event['error'] as String,
+        tests[event['testID']]?.problems.add(Problem(event['error'] as String,
             event['stackTrace'] as String, event['isFailure'] as bool));
         break;
 
       case 'print':
-        tests[event['testID'] as int].prints.add(event['message'] as String);
+        tests[event['testID'] as int]?.prints.add(event['message'] as String);
         break;
 
       case 'done':
@@ -75,28 +72,34 @@ class Processor1 implements Processor {
 }
 
 class _Test {
-  String name;
-  int startTime;
+  final String name;
+  final int startTime;
   int endTime = unfinished;
-  String skipReason;
-  List<Problem> problems = <Problem>[];
-  List<String> prints = <String>[];
-  bool hidden;
+  final String? skipReason;
+  final String? url;
+  final List<Problem> problems = <Problem>[];
+  final List<String> prints = <String>[];
+  bool hidden = false;
+
+  _Test(this.name, this.startTime, this.skipReason, this.url);
 
   Test toTestCase() => Test(
         name,
         endTime == unfinished ? unfinished : endTime - startTime,
         skipReason,
         problems,
+        url,
         prints,
         hidden && problems.isEmpty,
       );
 }
 
 class _Suite {
-  String path;
-  String platform;
-  List<_Test> tests = <_Test>[];
+  final String path;
+  final String platform;
+  final List<_Test> tests = <_Test>[];
+
+  _Suite(this.path, this.platform);
 
   Suite toTestSuite() => Suite(
         path,
